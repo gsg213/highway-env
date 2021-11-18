@@ -30,6 +30,7 @@ class ControlledVehicle(Vehicle):
     KP_LATERAL = 1 / TAU_LATERAL  # [1/s]
     MAX_STEERING_ANGLE = np.pi / 3  # [rad]
     DELTA_SPEED = 5  # [m/s]
+    MAX_ACCELERATION = 2 #[m/s^2]
 
     def __init__(self,
                  road: Road,
@@ -152,7 +153,7 @@ class ControlledVehicle(Vehicle):
         :param target_speed: the desired speed
         :return: an acceleration command [m/s2]
         """
-        return self.KP_A * (target_speed - self.speed)
+        return np.clip(self.KP_A * (target_speed - self.speed), -self.MAX_ACCELERATION, self.MAX_ACCELERATION)
 
     def get_routes_at_intersection(self) -> List[Route]:
         """Get the list of routes that can be followed at the next intersection."""
