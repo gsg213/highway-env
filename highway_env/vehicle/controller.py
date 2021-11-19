@@ -157,7 +157,7 @@ class ControlledVehicle(Vehicle):
         """
         new_acceleration = np.clip(self.KP_A * (target_speed - self.speed), -self.MAX_ACCELERATION, self.MAX_ACCELERATION)
 
-        jerk = (self.acceleration - new_acceleration)/dt
+        jerk = (new_acceleration - self.acceleration)/dt
 
         if jerk > self.MAX_JERK:
             jerk = self.MAX_JERK
