@@ -30,7 +30,8 @@ class ControlledVehicle(Vehicle):
     KP_LATERAL = 1 / TAU_LATERAL  # [1/s]
     MAX_STEERING_ANGLE = np.pi / 3  # [rad]
     DELTA_SPEED = 5  # [m/s]
-    MAX_ACCELERATION = 2 #[m/s^2]
+    MAX_ACCELERATION = 0.9 #[m/s^2]
+    MAX_JERK = 0.6 #[m/s^3]
 
     def __init__(self,
                  road: Road,
@@ -44,6 +45,7 @@ class ControlledVehicle(Vehicle):
         self.target_lane_index = target_lane_index or self.lane_index
         self.target_speed = target_speed or self.speed
         self.route = route
+        self.acceleration = 0
 
     @classmethod
     def create_from(cls, vehicle: "ControlledVehicle") -> "ControlledVehicle":
@@ -76,7 +78,7 @@ class ControlledVehicle(Vehicle):
             self.route = [self.lane_index]
         return self
 
-    def act(self, action: Union[dict, str] = None) -> None:
+    def act(self, action: Union[dict, str] = None, dt: float = 1) -> None:
         """
         Perform a high-level action to change the desired lane or speed.
 
@@ -102,7 +104,7 @@ class ControlledVehicle(Vehicle):
                 self.target_lane_index = target_lane_index
 
         action = {"steering": self.steering_control(self.target_lane_index),
-                  "acceleration": self.speed_control(self.target_speed)}
+                  "acceleration": self.speed_control(self.target_speed, dt)}
         action['steering'] = np.clip(action['steering'], -self.MAX_STEERING_ANGLE, self.MAX_STEERING_ANGLE)
         super().act(action)
 
@@ -144,7 +146,7 @@ class ControlledVehicle(Vehicle):
         steering_angle = np.clip(steering_angle, -self.MAX_STEERING_ANGLE, self.MAX_STEERING_ANGLE)
         return float(steering_angle)
 
-    def speed_control(self, target_speed: float) -> float:
+    def speed_control(self, target_speed: float, dt: float = 1) -> float:
         """
         Control the speed of the vehicle.
 
@@ -153,7 +155,17 @@ class ControlledVehicle(Vehicle):
         :param target_speed: the desired speed
         :return: an acceleration command [m/s2]
         """
-        return np.clip(self.KP_A * (target_speed - self.speed), -self.MAX_ACCELERATION, self.MAX_ACCELERATION)
+        new_acceleration = np.clip(self.KP_A * (target_speed - self.speed), -self.MAX_ACCELERATION, self.MAX_ACCELERATION)
+
+        jerk = (self.acceleration - new_acceleration)/dt
+
+        if jerk > self.MAX_JERK:
+            jerk = self.MAX_JERK
+            new_acceleration = self.acceleration + (jerk * dt)
+
+        self.acceleration = new_acceleration
+
+        return new_acceleration
 
     def get_routes_at_intersection(self) -> List[Route]:
         """Get the list of routes that can be followed at the next intersection."""
