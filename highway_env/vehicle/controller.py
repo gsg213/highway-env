@@ -92,6 +92,8 @@ class ControlledVehicle(Vehicle):
             self.target_speed += self.DELTA_SPEED
         elif action == "SLOWER":
             self.target_speed -= self.DELTA_SPEED
+            if self.target_speed < 0: #Clip lower speed at 0
+                self.target_speed = 0
         elif action == "LANE_RIGHT":
             _from, _to, _id = self.target_lane_index
             target_lane_index = _from, _to, np.clip(_id + 1, 0, len(self.road.network.graph[_from][_to]) - 1)
@@ -153,6 +155,7 @@ class ControlledVehicle(Vehicle):
         Using a simple proportional controller.
 
         :param target_speed: the desired speed
+               dt: sampling time
         :return: an acceleration command [m/s2]
         """
         new_acceleration = np.clip(self.KP_A * (target_speed - self.speed), -self.MAX_ACCELERATION, self.MAX_ACCELERATION)
