@@ -46,6 +46,8 @@ class ControlledVehicle(Vehicle):
         self.target_speed = target_speed or self.speed
         self.route = route
         self.acceleration = 0
+        self.lat_speed = 0
+        self.steering_angle = 0
 
     @classmethod
     def create_from(cls, vehicle: "ControlledVehicle") -> "ControlledVehicle":
@@ -137,6 +139,7 @@ class ControlledVehicle(Vehicle):
 
         # Lateral position control
         lateral_speed_command = - self.KP_LATERAL * lane_coords[1]
+        self.lat_speed = lateral_speed_command  ###
         # Lateral speed to heading
         heading_command = np.arcsin(np.clip(lateral_speed_command / utils.not_zero(self.speed), -1, 1))
         heading_ref = lane_future_heading + np.clip(heading_command, -np.pi/4, np.pi/4)
@@ -146,6 +149,8 @@ class ControlledVehicle(Vehicle):
         steering_angle = np.arcsin(np.clip(self.LENGTH / 2 / utils.not_zero(self.speed) * heading_rate_command,
                                            -1, 1))
         steering_angle = np.clip(steering_angle, -self.MAX_STEERING_ANGLE, self.MAX_STEERING_ANGLE)
+        
+        self.steering_angle = float(steering_angle)###
         return float(steering_angle)
 
     def speed_control(self, target_speed: float, dt: float = 1) -> float:
