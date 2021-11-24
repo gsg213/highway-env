@@ -30,8 +30,11 @@ class ControlledVehicle(Vehicle):
     KP_LATERAL = 1 / TAU_LATERAL  # [1/s]
     MAX_STEERING_ANGLE = np.pi / 3  # [rad]
     DELTA_SPEED = 5  # [m/s]
-    MAX_ACCELERATION = 0.9 #[m/s^2]
-    MAX_JERK = 0.6 #[m/s^3]
+    MAX_ACCELERATION = 2 #[m/s^2]
+    MAX_DECCELERATION = 4
+    MAX_JERK = 2 #[m/s^3]
+    MAX_JERK_DECECELERATION = 4
+   
 
     def __init__(self,
                  road: Road,
@@ -94,8 +97,8 @@ class ControlledVehicle(Vehicle):
             self.target_speed += self.DELTA_SPEED
         elif action == "SLOWER":
             self.target_speed -= self.DELTA_SPEED
-            if self.target_speed < 0: #Clip lower speed at 0
-                self.target_speed = 0
+            #if self.target_speed < 0: #Clip lower speed at 0
+            #    self.target_speed = 0
         elif action == "LANE_RIGHT":
             _from, _to, _id = self.target_lane_index
             target_lane_index = _from, _to, np.clip(_id + 1, 0, len(self.road.network.graph[_from][_to]) - 1)
@@ -165,11 +168,10 @@ class ControlledVehicle(Vehicle):
         """
         new_acceleration = np.clip(self.KP_A * (target_speed - self.speed), -self.MAX_ACCELERATION, self.MAX_ACCELERATION)
 
-        jerk = (new_acceleration - self.acceleration)/dt
+        jerk = (new_acceleration - self.acceleration)
 
         if jerk > self.MAX_JERK:
-            jerk = self.MAX_JERK
-            new_acceleration = self.acceleration + (jerk * dt)
+            new_acceleration = self.acceleration + (self.MAX_JERK)
 
         self.acceleration = new_acceleration
 
