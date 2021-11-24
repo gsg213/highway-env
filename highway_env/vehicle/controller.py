@@ -33,7 +33,7 @@ class ControlledVehicle(Vehicle):
     MAX_ACCELERATION = 2 #[m/s^2]
     MAX_DECCELERATION = 4
     MAX_JERK = 2 #[m/s^3]
-    MAX_JERK_DECECELERATION = 4
+    MAX_JERK_DECCELERATION = 4
    
 
     def __init__(self,
