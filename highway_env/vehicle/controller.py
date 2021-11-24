@@ -166,12 +166,14 @@ class ControlledVehicle(Vehicle):
                dt: sampling time
         :return: an acceleration command [m/s2]
         """
-        new_acceleration = np.clip(self.KP_A * (target_speed - self.speed), -self.MAX_ACCELERATION, self.MAX_ACCELERATION)
+        new_acceleration = np.clip(self.KP_A * (target_speed - self.speed), -self.MAX_DECCELERATION, self.MAX_ACCELERATION)
 
         jerk = (new_acceleration - self.acceleration)
 
         if jerk > self.MAX_JERK:
             new_acceleration = self.acceleration + (self.MAX_JERK)
+        if jerk < - self.MAX_JERK_DECCELERATION:
+            new_acceleration = self.acceleration - self.MAX_JERK_DECCELERATION       
 
         self.acceleration = new_acceleration
 
