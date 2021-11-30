@@ -22,7 +22,7 @@ class ControlledVehicle(Vehicle):
     """Characteristic time"""
     TAU_ACC = 0.6  # [s]
     TAU_HEADING = 0.2  # [s]
-    TAU_LATERAL = 0.6  # [s]
+    TAU_LATERAL = 0.6  # [s] #response time lateral speed Tau
 
     TAU_PURSUIT = 0.5 * TAU_HEADING  # [s]
     KP_A = 1 / TAU_ACC
@@ -153,7 +153,7 @@ class ControlledVehicle(Vehicle):
                                            -1, 1))
         steering_angle = np.clip(steering_angle, -self.MAX_STEERING_ANGLE, self.MAX_STEERING_ANGLE)
         
-        self.steering_angle = float(steering_angle)###
+        self.steering_angle = heading_ref #float(steering_angle)###
         return float(steering_angle)
 
     def speed_control(self, target_speed: float, dt: float = 1) -> float:
