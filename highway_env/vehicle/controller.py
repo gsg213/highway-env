@@ -22,7 +22,7 @@ class ControlledVehicle(Vehicle):
     """Characteristic time"""
     TAU_ACC = 0.6  # [s]
     TAU_HEADING = 0.2  # [s]
-    TAU_LATERAL = 0.6  # [s] #response time lateral speed Tau
+    TAU_LATERAL = 1#0.6  # [s] #response time lateral speed Tau
 
     TAU_PURSUIT = 0.5 * TAU_HEADING  # [s]
     KP_A = 1 / TAU_ACC
@@ -137,12 +137,13 @@ class ControlledVehicle(Vehicle):
         """
         target_lane = self.road.network.get_lane(target_lane_index)
         lane_coords = target_lane.local_coordinates(self.position)
-        lane_next_coords = lane_coords[0] + self.speed * self.TAU_PURSUIT
+        lane_next_coords = lane_coords[0] + self.speed * self.TAU_PURSUIT ## lookahead?s
         lane_future_heading = target_lane.heading_at(lane_next_coords)
 
+        # add lateral error 
         # Lateral position control
         lateral_speed_command = - self.KP_LATERAL * lane_coords[1]
-        self.lat_speed = lateral_speed_command  ###
+        self.lat_speed = lane_coords[1]
         # Lateral speed to heading
         heading_command = np.arcsin(np.clip(lateral_speed_command / utils.not_zero(self.speed), -1, 1))
         heading_ref = lane_future_heading + np.clip(heading_command, -np.pi/4, np.pi/4)
