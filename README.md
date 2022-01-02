@@ -8,14 +8,15 @@
 <>[![GitHub contributors](https://img.shields.io/github/contributors/eleurent/highway-env)](https://github.com/eleurent/highway-env/graphs/contributors)
 <>[![Environments](https://img.shields.io/github/search/eleurent/highway-env/import%20filename:*_env%20path:highway_env/envs?label=environments)](#the-environments) --->
 
-A collection of environments for *autonomous driving* and tactical decision-making tasks
+A collection of environments for *autonomous driving* and tactical decision-making tasks. This Library was forked from https://github.com/eleurent/highway-env and modified for our specific interests.
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/eleurent/highway-env/master/../gh-media/docs/media/highway-env.gif?raw=true"><br/>
     <em>An episode of one of the environments available in highway-env.</em>
 </p>
 
-## [Try it on Google Colab! ![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](scripts)
+<!---
+## [Try it on Google Colab! ![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](scripts) --->
 
 ## The environments
 
@@ -145,10 +146,10 @@ This agent leverages a transition and reward models to perform a stochastic tree
     <em>The MCTS agent solving highway-v0.</em>
 </p>
 
-## Installation
+<!---## Installation
 
 `pip install highway-env`
-
+--->
 ## Usage
 
 ```python
