@@ -71,15 +71,4 @@ ax1.set_ylim(0,20)
 ax2.set_ylabel('Speed (m/s)', color='b')
 
 plt.show()
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+   
