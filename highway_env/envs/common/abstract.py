@@ -264,6 +264,10 @@ class AbstractEnv(gym.Env):
         if mode == 'rgb_array':
             image = self.viewer.get_image()
             return image
+    
+    def vehicleInfo(self, action):
+
+        return self.vehicle.position
 
     def close(self) -> None:
         """
