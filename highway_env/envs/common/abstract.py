@@ -265,9 +265,9 @@ class AbstractEnv(gym.Env):
             image = self.viewer.get_image()
             return image
     
-    def vehicleInfo(self, action):
+    def vehicleInfo(self):
 
-        return self.vehicle.position
+        return self.vehicle.speed, self.vehicle.target_speed,self.vehicle.acceleration_, self.vehicle.position,1 #self.vehicle.lat_speed
 
     def close(self) -> None:
         """
