@@ -38,19 +38,6 @@ The agent's objective is to reach a high speed while avoiding collisions with ne
 
 A faster variant, `highway-fast-v0` is also available, with a degraded simulation accuracy to improve speed for large-scale training.
 
-### Merge
-
-```python
-env = gym.make("merge-v0")
-```
-
-In this task, the ego-vehicle starts on a main highway but soon approaches a road junction with incoming vehicles on the access ramp. The agent's objective is now to maintain a high speed while making room for the vehicles so that they can safely merge in the traffic.
-
-<p align="center">
-    <img src="https://raw.githubusercontent.com/eleurent/highway-env/master/../gh-media/docs/media/merge-env.gif?raw=true"><br/>
-    <em>The merge-v0 environment.</em>
-</p>
-
 ### Roundabout
 
 ```python
@@ -64,19 +51,6 @@ In this task, the ego-vehicle if approaching a roundabout with flowing traffic. 
     <em>The roundabout-v0 environment.</em>
 </p>
 
-### Parking
-
-```python
-env = gym.make("parking-v0")
-```
-
-A goal-conditioned continuous control task in which the ego-vehicle must park in a given space with the appropriate heading.
-
-<p align="center">
-    <img src="https://raw.githubusercontent.com/eleurent/highway-env/master/../gh-media/docs/media/parking-env.gif?raw=true"><br/>
-    <em>The parking-v0 environment.</em>
-</p>
-
 ### Intersection
 
 ```python
@@ -88,19 +62,6 @@ An intersection negotiation task with dense traffic.
 <p align="center">
     <img src="https://raw.githubusercontent.com/eleurent/highway-env/master/../gh-media/docs/media/intersection-env.gif?raw=true"><br/>
     <em>The intersection-v0 environment.</em>
-</p>
-
-### Racetrack
-
-```python
-env = gym.make("racetrack-v0")
-```
-
-A continuous control task involving lane-keeping and obstacle avoidance.
-
-<p align="center">
-    <img src="https://raw.githubusercontent.com/eleurent/highway-env/master/../gh-media/docs/media/racetrack-env.gif?raw=true"><br/>
-    <em>The racetrack-v0 environment.</em>
 </p>
 
 ## Usage
