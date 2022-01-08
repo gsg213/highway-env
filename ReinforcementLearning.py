@@ -71,9 +71,9 @@ while done == False:
 step = np.arange(len(actions)) 
 pos_ = np.array([np.array(xi) for xi in pos])
 
-df_ego = df.loc[0]
-df_ego['vel'] = ((df_ego['vx'])**2 + (df_ego['vy'])**2 )**(1/2) * 15
-vel_ = df_ego['vel'].to_numpy()
+#df_ego = df.loc[0]
+#df_ego['vel'] = ((df_ego['vx'])**2 + (df_ego['vy'])**2 )**(1/2) * 15
+#vel_ = df_ego['vel'].to_numpy()
 
 fig = plt.figure(figsize=(15, 11))
 
@@ -82,7 +82,7 @@ grid = plt.GridSpec(3, 2, wspace=0.4, hspace=0.3)
 plt.subplot(grid[0, 0])
 plt.title('Speed (m/s)')
 plt.plot(range(t),vel,label = "Speed")
-plt.plot(range(t), target_vel, label = "Target")
+plt.step(range(t), target_vel, label = "Target")
 plt.legend()
 plt.grid()
 
@@ -111,8 +111,8 @@ y=pos_[:,1]
 plt.subplot(grid[1:, 1])
 plt.title('Position (x,y)  (m)')
 plt.plot(x,y)
-plt.ylim(max(y)*1.30, min(y)*1.30)
-plt.xlim(min(x)*1.30, max(x)*1.30)
+plt.ylim(max(y)+30, min(y)-30)
+plt.xlim(min(x)-30, max(x)+30)
 plt.grid()
 
 plt.show()
