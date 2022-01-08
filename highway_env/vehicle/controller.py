@@ -35,6 +35,7 @@ class ControlledVehicle(Vehicle):
     MAX_JERK = 2 #[m/s^3]
     MAX_JERK_DECCELERATION = 4
     acceleration_ = 0
+    lat_speed = 0
    
     def __init__(self,
                  road: Road,
@@ -145,6 +146,7 @@ class ControlledVehicle(Vehicle):
 
         # Lateral position control
         lateral_speed_command = - self.KP_LATERAL * lane_coords[1]
+        self.lat_speed = lateral_speed_command
         # Lateral speed to heading
         heading_command = np.arcsin(np.clip(lateral_speed_command / utils.not_zero(self.speed), -1, 1))
         heading_ref = lane_future_heading + np.clip(heading_command, -np.pi/4, np.pi/4)
