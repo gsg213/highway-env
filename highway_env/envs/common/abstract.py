@@ -267,7 +267,7 @@ class AbstractEnv(gym.Env):
     
     def vehicleInfo(self):
 
-        return self.vehicle.speed, self.vehicle.target_speed,self.vehicle.acceleration_, self.vehicle.position,1 #self.vehicle.lat_speed
+        return self.vehicle.speed, self.vehicle.target_speed,self.vehicle.acceleration_, self.vehicle.position,self.vehicle.lat_speed
 
     def close(self) -> None:
         """
