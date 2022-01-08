@@ -86,12 +86,13 @@ plt.step(range(t), target_vel, label = "Target")
 plt.legend()
 plt.grid()
 
-# plt.subplot(3, 2, 2)
-# plt.title('Steering angle (rad)')
-# plt.plot(ran_t,heading, label = "Heading")
+plt.subplot(grid[2, 0])
+plt.title('Lateral Speed')
+plt.plot(range(t),lat_vel)
 # plt.plot(ran_t,steering_angle, label = "Target")
 # plt.legend()
-# plt.grid()
+plt.grid()
+
 
 plt.subplot(grid[1, 0])
 plt.title('Acceleration (m/s²)')
