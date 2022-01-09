@@ -68,7 +68,7 @@ An intersection negotiation task with dense traffic.
 First download the repo, and open the folder ```highway-env```
 
 Then create the conda environment:
-```conda create --name av_env --file av-env.txt```
+```conda env create -f av_env.yml```
 This will create a conda environment with all the required libraries.
 
 Activate conda environment:
