@@ -1,24 +1,13 @@
 # highway-env
 
-<!---[![build](https://github.com/eleurent/highway-env/workflows/build/badge.svg)](https://github.com/eleurent/highway-env/actions?query=workflow%3Abuild)
-<>[![Documentation Status](https://readthedocs.org/projects/highway-env/badge/?version=latest)](https://highway-env.readthedocs.io/en/latest/?badge=latest)
-<>[![Downloads](https://img.shields.io/pypi/dm/highway-env)](https://pypi.org/project/highway-env/)
-<>[![Codacy Badge](https://api.codacy.com/project/badge/Grade/63847d9328f64fce9c137b03fcafcc27)](https://app.codacy.com/manual/eleurent/highway-env?utm_source=github.com&utm_medium=referral&utm_content=eleurent/highway-env&utm_campaign=Badge_Grade_Dashboard)
-<>[![Coverage](https://codecov.io/gh/eleurent/highway-env/branch/master/graph/badge.svg)](https://codecov.io/gh/eleurent/highway-env)
-<>[![GitHub contributors](https://img.shields.io/github/contributors/eleurent/highway-env)](https://github.com/eleurent/highway-env/graphs/contributors)
-<>[![Environments](https://img.shields.io/github/search/eleurent/highway-env/import%20filename:*_env%20path:highway_env/envs?label=environments)](#the-environments) --->
-
 A collection of environments for *autonomous driving* and tactical decision-making tasks. This Library was forked from https://github.com/eleurent/highway-env and modified for our specific interests.
 
-To use the library in Anaconda use the comand line ```conda create --name av_env --file av-env.txt``` to create a new conda environment with the prerequisites for the project.
+To use the library in Anaconda use the comand line ```conda env create -f av_env.yml``` to create a new conda environment with the prerequisites for the project.
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/eleurent/highway-env/master/../gh-media/docs/media/highway-env.gif?raw=true"><br/>
     <em>An episode of one of the environments available in highway-env.</em>
 </p>
-
-<!---
-## [Try it on Google Colab! ![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](scripts) --->
 
 ## The environments
 
