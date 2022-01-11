@@ -9,9 +9,9 @@ To use the library in Anaconda use the comand line ```conda env create -f av_env
     <em>An episode of one of the environments available in highway-env.</em>
 </p>
 
-[Test it on ![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gsg213/highway-env/blob/master/high_env.ipynb)
+### [Test it on ![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gsg213/highway-env/blob/master/high_env.ipynb)
 
-[Train it on ![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gsg213/highway-env/blob/master/train_high_env.ipynb)
+### [Train it on ![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gsg213/highway-env/blob/master/train_high_env.ipynb)
 
 ## The environments
 
