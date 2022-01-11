@@ -33,22 +33,25 @@ class RoundaboutEnv(AbstractEnv):
             },
             "incoming_vehicle_destination": 2,
             "collision_reward": -1,
-            "high_speed_reward": 0.7,
+            "high_speed_reward": 0.2,
+            "lower_speed_reward":0.25,
             "right_lane_reward": 0.1,
             "lane_change_reward": -0.05,
-            "screen_width": 1000,
-            "screen_height": 1000,
-            "centering_position": [0.5, 0.6],
-            "duration": 25
+            "screen_width": 1500,
+            "screen_height": 990,
+            "centering_position": [.6, .7],#[0.9, 1.6],
+            "duration": 38
         })
         return config
 
     def _reward(self, action: int) -> float:
         lane_change = action == 0 or action == 2
+        lower_speed = action == 4
         reward = self.config["collision_reward"] * self.vehicle.crashed \
             + self.config["high_speed_reward"] * \
                  MDPVehicle.get_speed_index(self.vehicle) / max(MDPVehicle.SPEED_COUNT - 1, 1) \
-            + self.config["lane_change_reward"] * lane_change
+            + self.config["lane_change_reward"] * lane_change \
+            + self.config["lower_speed_reward"] * lower_speed    
         return utils.lmap(reward,
                           [self.config["collision_reward"] + self.config["lane_change_reward"],
                            self.config["high_speed_reward"]], [0, 1])
@@ -70,13 +73,13 @@ class RoundaboutEnv(AbstractEnv):
         net = RoadNetwork()
         radii = [radius, radius+4 ,radius+8.2]
         n, c, s = LineType.NONE, LineType.CONTINUOUS, LineType.STRIPED
-        line = [[c, s],[s, s] ,[n, c]]
+        line = [[c, s],[s, n] ,[s, c]]
         for lane in [0, 1, 2]:
-            # Círculo derecha inferior 
+            #Círculo derecha inferior 
             net.add_lane("se", "ex",
                           CircularLane(center, radii[lane], np.deg2rad(90 - alpha), np.deg2rad(alpha),
                                       clockwise=False, line_types=line[lane]))
-            # # Círculo derecha
+            # Círculo derecha
             net.add_lane("ex", "ee",
                           CircularLane(center, radii[lane], np.deg2rad(alpha), np.deg2rad(-alpha),
                                       clockwise=False, line_types=line[lane]))
@@ -114,7 +117,7 @@ class RoundaboutEnv(AbstractEnv):
         delta_en = dev-delta_st
         w = 2*np.pi/dev
         # acces,
-        # net.add_lane("ser", "ses", StraightLane([2, access], [2, dev/2], line_types=(s, c))) #dev en 120
+        net.add_lane("ser", "ses", StraightLane([2, access], [2, dev/2], line_types=(c, s))) #dev en 120
         net.add_lane("ses", "se", SineLane([2+a, dev/2], [2+a, dev/2-delta_st], a, w, -np.pi/2, line_types=(s, s)))
         net.add_lane("ser", "ses", StraightLane([2, access], [2, dev/2], line_types=(s, n))) #dev en 120
         net.add_lane("ses", "se", SineLane([2+a, dev/2], [2+a, dev/2-delta_st], a, w, -np.pi/2, line_types=(s, n)))
@@ -127,15 +130,15 @@ class RoundaboutEnv(AbstractEnv):
         net.add_lane("sxs", "sxr", StraightLane([-2, dev / 2], [-2, access], line_types=(n, c)))
 
 
-        net.add_lane("eer", "ees", StraightLane([access, -2], [dev / 2, -2], line_types=(s, s)))
+        net.add_lane("eer", "ees", StraightLane([access, -2], [dev / 2, -2], line_types=(s, c)))
         net.add_lane("ees", "ee", SineLane([dev / 2, -2-a], [dev / 2 - delta_st, -2-a], a, w, -np.pi / 2, line_types=(c, c)))
         net.add_lane("ex", "exs", SineLane([-dev / 2 + delta_en, 2+a], [dev / 2, 2+a], a, w, -np.pi / 2 + w * delta_en, line_types=(c, c)))
         net.add_lane("exs", "exr", StraightLane([dev / 2, 2], [access, 2], line_types=(n, c)))
 
-        net.add_lane("ner", "nes", StraightLane([-2, -access], [-2, -dev / 2], line_types=(s, c)))
+        net.add_lane("ner", "nes", StraightLane([-2, -300], [-2, -dev / 2], line_types=(s, c)))
         net.add_lane("nes", "ne", SineLane([-2 - a, -dev / 2], [-2 - a, -dev / 2 + delta_st], a, w, -np.pi / 2, line_types=(c, c)))
         net.add_lane("nx", "nxs", SineLane([2 + a, dev / 2 - delta_en], [2 + a, -dev / 2], a, w, -np.pi / 2 + w * delta_en, line_types=(c, c)))
-        net.add_lane("nxs", "nxr", StraightLane([2, -dev / 2], [2, -access], line_types=(n, c)))
+        net.add_lane("nxs", "nxr", StraightLane([2, -dev / 2], [2, -300], line_types=(n, c)))
 
         net.add_lane("wer", "wes", StraightLane([-access, 2], [-dev / 2, 2], line_types=(s, c)))
         net.add_lane("wes", "we", SineLane([-dev / 2, 2+a], [-dev / 2 + delta_st, 2+a], a, w, -np.pi / 2, line_types=(c, c)))
@@ -154,71 +157,92 @@ class RoundaboutEnv(AbstractEnv):
         priority = 3 if is_horizontal else 1
         rotation = np.array([[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]])
         corner = 3
-        #net = RoadNetwork()
         #n, c, s = LineType.NONE, LineType.CONTINUOUS, LineType.STRIPED
         
         #Curves of the intersection
-        net.add_lane("ir" + str(3), "il" + str((3 - 1) % 4),
+        net.add_lane("wxr", "rnx",
                       CircularLane(np.array([-170, -11]),#r_center, 
                                   right_turn_radius, angle + np.radians(180), angle + np.radians(270),
                                   line_types=[n, c], priority=priority, speed_limit=10))
         
-        net.add_lane("ir" + str(3), "il" + str((3 - 1) % 4),
+        net.add_lane("lne", "lwx",
                       CircularLane(np.array([-192, -11]),#r_center, 
                                   right_turn_radius, angle + np.radians(90), angle + np.radians(180),
                                   line_types=[n, c], priority=priority, speed_limit=10))
         
-        net.add_lane("ir" + str(3), "il" + str((3 - 1) % 4),
+        net.add_lane("rse", "wer",
                       CircularLane(np.array([-169, 11]),#r_center, 
                                   right_turn_radius, angle + np.radians(270), angle + np.radians(360),
                                   line_types=[n, c], priority=priority, speed_limit=10))
         
-        net.add_lane("ir" + str(3), "il" + str((3 - 1) % 4),
+        net.add_lane("lwe","lsx",
                       CircularLane(np.array([-192, 11]),#r_center, 
                                   right_turn_radius, angle + np.radians(0), angle + np.radians(90),
                                   line_types=[n, c], priority=priority, speed_limit=10))
         
-            # Incoming
+        # Incoming Intersection
         rotation = np.array([[np.cos(np.radians(90 * 3)), -np.sin(np.radians(90 * 3))], [np.sin(np.radians(90 * 3)), np.cos(np.radians(90 * 3))]])
         start = rotation @ np.array([lane_width / 2, access_length + outer_distance])
         end = rotation @ np.array([lane_width / 2, outer_distance])
         #Intersection superior
-        #i: intersection
-        #inir:intersection north initial right
-        #infr:intersection north final right
-        #inir:intersection north initial left
-        #infr:intersection north final left
-        net.add_lane("inir", "infr",
-                          StraightLane([-179,-10.5],[-179, -110], line_types=[s, c], priority=priority, speed_limit=10))
-        
-        net.add_lane("inil" , "infl" ,
-                          StraightLane([-183,-10.5],[-183, -110], line_types=[c, n], priority=priority, speed_limit=10))
-        
-        #Intersection inferior
-        #inir:intersection south initial right
-        #infr:intersection south final right
-        #inir:intersection south initial left
-        #infr:intersection south final left
-        net.add_lane("isil", "isfl",
-                          StraightLane([-183,10.5],[-183, 110], line_types=[s, c], priority=priority, speed_limit=10))
-        
-        net.add_lane("isir", "isfr",
-                          StraightLane([-178,10.5],[-178, 110], line_types=[c, n], priority=priority, speed_limit=10))
-        
-        #Intersection lateral
-        net.add_lane("iwil", "iwfl",
-                          StraightLane([-192,-2],[-300, -2], line_types=[s, c], priority=priority, speed_limit=10))
-        
-        net.add_lane("iwir", "iwfr",
-                          StraightLane([-192,2],[-300, 2], line_types=[c, n], priority=priority, speed_limit=10))
-        
-        #intersection s
-        net.add_lane("isir", "isfr",
-                         StraightLane([-172,-2],[-198, -2], line_types=[s, n], priority=priority, speed_limit=10))
-       
-        net.add_lane("isil", "isfl",
-                          StraightLane([-179,9],[-179, -10], line_types=[s, n], priority=priority, speed_limit=10))
 
+        net.add_lane("rnx", "rce",
+                          StraightLane([-179,-10.5],[-179, -170], line_types=[s, c], priority=priority, speed_limit=10))
+        
+        net.add_lane("lcw" , "lne" ,
+                          StraightLane([-183,-177],[-183, -10.5], line_types=[n, c], priority=priority, speed_limit=10))
+
+        net.add_lane("lsx", "s2l",
+                          StraightLane([-183,10.5],[-183, 300], line_types=[s, c], priority=priority, speed_limit=10))
+        
+        net.add_lane("s2r", "rse",
+                          StraightLane([-178,300],[-178, 10.5], line_types=[n, c], priority=priority, speed_limit=10))
+
+        net.add_lane("lwx", "w2u",
+                          StraightLane([-190.3,-2],[-500, -2], line_types=[s, c], priority=priority, speed_limit=10))
+        
+        net.add_lane("w2l", "lwe",
+                          StraightLane([-500,2],[-191.1, 2], line_types=[n, c], priority=priority, speed_limit=10))
+
+        net.add_lane("cihe", "cihx",
+                          StraightLane([-172,-2],[-198, -2], line_types=[s, n], priority=priority, speed_limit=10))
+       
+        net.add_lane("cive", "civx",
+                          StraightLane([-183,-10],[-183, 9], line_types=[s, n], priority=priority, speed_limit=10))
+
+        ## Curve to loop
+        
+        net.add_lane("rce", "rcn",
+                      CircularLane(np.array([-170, -170]),#r_center, 
+                                  right_turn_radius, angle + np.radians(270), angle + np.radians(360),
+                                  line_types=[n, c], priority=priority, speed_limit=10))
+        
+        net.add_lane("cce", "ccn",
+                      CircularLane(np.array([-174, -174]),#r_center, 
+                                  right_turn_radius, angle + np.radians(270), angle + np.radians(360),
+                                  line_types=[n, s], priority=priority, speed_limit=10))
+        net.add_lane("lce", "lcw",
+                      CircularLane(np.array([-178, -178]),#r_center, 
+                                  right_turn_radius, angle + np.radians(270), angle + np.radians(365),
+                                  line_types=[n, c], priority=priority, speed_limit=10))
+        
+        ##Lines of the loop
+        
+        net.add_lane("rcn", "nes", StraightLane([-171, -179], [-13, -179], line_types=(s, c)))
+        
+        net.add_lane("nxs", "lce", StraightLane([-13, -183], [-179, -183], line_types=(n, c)))
+        
+        net.add_lane("cv", "cvx", StraightLane([-175, -179], [-170, -179], line_types=(s, n)))
+        net.add_lane("ch", "chx", StraightLane([-183, -173], [-183, -169], line_types=(s, n)))
+
+        dev = -100  # [m] 85
+        a =  2 # [m]
+        delta_st = 0.2*dev 
+        net.add_lane("nxs", "nx", SineLane([-11, -181], [-3, -184], a, .1, -np.pi / 2, line_types=(c, s)))
+        net.add_lane("nx1", "nes", SineLane([-3, -178], [-11, -181], a, .1, -np.pi / 2 +5.5, line_types=(c, s)))# 
+
+        
+        
         road = Road(network=net, np_random=self.np_random, record_history=self.config["show_trajectories"])
         self.road = road
 
@@ -237,7 +261,7 @@ class RoundaboutEnv(AbstractEnv):
                                                      speed=8,
                                                      heading=ego_lane.heading_at(140))
         try:
-            ego_vehicle.plan_route_to("wxr") #wxr   #nxr
+            ego_vehicle.plan_route_to("nes") #wxr   #nxr
         except AttributeError:
             pass
         MDPVehicle.SPEED_MIN = 0
@@ -247,7 +271,7 @@ class RoundaboutEnv(AbstractEnv):
         self.vehicle = ego_vehicle
 
         # Incoming vehicle
-        destinations = ["exr", "sxr", "nxr","isfr"]
+        destinations = ["exr", "sxr", "nxr","rse"]
         other_vehicles_type = utils.class_from_path(self.config["other_vehicles_type"])
         vehicle = other_vehicles_type.make_on_lane(self.road,
                                                     ("we", "sx", 1),
@@ -275,55 +299,77 @@ class RoundaboutEnv(AbstractEnv):
 
 
     
-        # Entering vehicle
+        #Entering vehicle
         vehicle = other_vehicles_type.make_on_lane(self.road,
-                                                   ("eer", "ees", 0),
-                                                   longitudinal=50 + self.np_random.randn() * position_deviation,
-                                                   speed=16 + self.np_random.randn() * speed_deviation)
-        vehicle.plan_route_to(self.np_random.choice(destinations))
-        vehicle.randomize_behavior()
-        self.road.vehicles.append(vehicle)
-        
-        #Entering vehicle in intersection
-        
-        vehicle = other_vehicles_type.make_on_lane(self.road,
-                                                    ("isil", "isfl", 0),
+                                                    ("eer", "ees", 0),
                                                     longitudinal=50 + self.np_random.randn() * position_deviation,
-                                                    speed=20 + self.np_random.randn() * speed_deviation)
+                                                    speed=16 + self.np_random.randn() * speed_deviation)
         vehicle.plan_route_to(self.np_random.choice(destinations))
         vehicle.randomize_behavior()
         self.road.vehicles.append(vehicle)
-        #Entering vehicle in intersection
+        
+        # #Entering vehicle in intersection
         
         vehicle = other_vehicles_type.make_on_lane(self.road,
-                                                    ("iwir", "iwfr", 0),
+                                                    ("w2l", "lwe", 0),
                                                     longitudinal=50 + self.np_random.randn() * position_deviation,
-                                                    speed=20 + self.np_random.randn() * speed_deviation)
-        vehicle.plan_route_to(self.np_random.choice(destinations))
+                                                    speed=16 + self.np_random.randn() * speed_deviation)
+        vehicle.plan_route_to("wes")
         vehicle.randomize_behavior()
         self.road.vehicles.append(vehicle)
-        #Entering vehicle in intersection
         
         vehicle = other_vehicles_type.make_on_lane(self.road,
-                                                    ("isir", "isfr", 0),
+                                                    ("nxs", "lce", 0),
                                                     longitudinal=50 + self.np_random.randn() * position_deviation,
-                                                    speed=20 + self.np_random.randn() * speed_deviation)
-        vehicle.plan_route_to(self.np_random.choice(destinations))
+                                                    speed=16 + self.np_random.randn() * speed_deviation)
+        vehicle.plan_route_to("wes")
         vehicle.randomize_behavior()
         self.road.vehicles.append(vehicle)
         
+        #Entering nx to lce
         vehicle = other_vehicles_type.make_on_lane(self.road,
                                                     ("wer", "wes", 0),
                                                     longitudinal=50 + self.np_random.randn() * position_deviation,
-                                                    speed=20 + self.np_random.randn() * speed_deviation)
-        vehicle.plan_route_to(self.np_random.choice(destinations))
+                                                    speed=16 + self.np_random.randn() * speed_deviation)
+        vehicle.plan_route_to("nes")
+        vehicle.randomize_behavior()
+        self.road.vehicles.append(vehicle)
+        
+        vehicle = other_vehicles_type.make_on_lane(self.road,
+                                                    ("wxs", "wxr", 0),
+                                                    longitudinal=50 + self.np_random.randn() * position_deviation,
+                                                    speed=16 + self.np_random.randn() * speed_deviation)
+        vehicle.plan_route_to("s2l")
+        vehicle.randomize_behavior()
+        self.road.vehicles.append(vehicle)
+        
+        vehicle = other_vehicles_type.make_on_lane(self.road,
+                                                    ("s2r","rse", 0),
+                                                    longitudinal=50 + self.np_random.randn() * position_deviation,
+                                                    speed=16 + self.np_random.randn() * speed_deviation)
+        vehicle.plan_route_to("sx")
+        vehicle.randomize_behavior()
+        self.road.vehicles.append(vehicle)
+        
+        vehicle = other_vehicles_type.make_on_lane(self.road,
+                                                    ("lcw","lne", 0),
+                                                    longitudinal=50 + self.np_random.randn() * position_deviation,
+                                                    speed=16 + self.np_random.randn() * speed_deviation)
+        vehicle.plan_route_to("wes")
+        vehicle.randomize_behavior()
+        self.road.vehicles.append(vehicle)
+        
+        vehicle = other_vehicles_type.make_on_lane(self.road,
+                                                    ("nx","ne", 0),
+                                                    longitudinal=50 + self.np_random.randn() * position_deviation,
+                                                    speed=18)
+        vehicle.plan_route_to("rcn")
         vehicle.randomize_behavior()
         self.road.vehicles.append(vehicle)
 
 
-
 register(
-    id='roundabout-v130',
+    id='roundabout-v317',
     entry_point='highway_env.envs:RoundaboutEnv',
 )
 
