@@ -34,9 +34,9 @@ class RoundaboutEnv(AbstractEnv):
             "incoming_vehicle_destination": 2,
             "collision_reward": -1,
             "high_speed_reward": 0.2,
-            "lower_speed_reward":0.25,
+            "lower_speed_reward":0.26,
             "right_lane_reward": 0.1,
-            "lane_change_reward": -0.05,
+            "lane_change_reward": -0.1,
             "screen_width": 1500,
             "screen_height": 990,
             "centering_position": [.6, .7],#[0.9, 1.6],
@@ -296,8 +296,6 @@ class RoundaboutEnv(AbstractEnv):
             vehicle.randomize_behavior()
             self.road.vehicles.append(vehicle)
 
-
-
     
         #Entering vehicle
         vehicle = other_vehicles_type.make_on_lane(self.road,
@@ -314,7 +312,7 @@ class RoundaboutEnv(AbstractEnv):
                                                     ("w2l", "lwe", 0),
                                                     longitudinal=50 + self.np_random.randn() * position_deviation,
                                                     speed=16 + self.np_random.randn() * speed_deviation)
-        vehicle.plan_route_to("wes")
+        vehicle.plan_route_to("rcn")
         vehicle.randomize_behavior()
         self.road.vehicles.append(vehicle)
         
@@ -330,7 +328,7 @@ class RoundaboutEnv(AbstractEnv):
         vehicle = other_vehicles_type.make_on_lane(self.road,
                                                     ("wer", "wes", 0),
                                                     longitudinal=50 + self.np_random.randn() * position_deviation,
-                                                    speed=16 + self.np_random.randn() * speed_deviation)
+                                                    speed=18 + self.np_random.randn() * speed_deviation)
         vehicle.plan_route_to("nes")
         vehicle.randomize_behavior()
         self.road.vehicles.append(vehicle)
@@ -351,25 +349,92 @@ class RoundaboutEnv(AbstractEnv):
         vehicle.randomize_behavior()
         self.road.vehicles.append(vehicle)
         
+        # vehicle = other_vehicles_type.make_on_lane(self.road,
+        #                                             ("s2r","rse", 0),
+        #                                             longitudinal=50 + self.np_random.randn() * position_deviation,
+        #                                             speed=16 )
+        # vehicle.plan_route_to("sx")
+        # vehicle.randomize_behavior()
+        # self.road.vehicles.append(vehicle)
+        
+        # vehicle = other_vehicles_type.make_on_lane(self.road,
+        #                                             ("s2r","rse", 0),
+        #                                             longitudinal=50  * (-2),
+        #                                             speed=15)
+        # vehicle.plan_route_to("rce")
+        # vehicle.randomize_behavior()
+        # self.road.vehicles.append(vehicle)
+        
+        # vehicle = other_vehicles_type.make_on_lane(self.road,
+        #                                             ("s2r","rse", 0),
+        #                                             longitudinal=50  ,
+        #                                             speed=17)
+        # vehicle.plan_route_to("rce")
+        # vehicle.randomize_behavior()
+        # self.road.vehicles.append(vehicle)
+        
         vehicle = other_vehicles_type.make_on_lane(self.road,
                                                     ("lcw","lne", 0),
-                                                    longitudinal=50 + self.np_random.randn() * position_deviation,
-                                                    speed=16 + self.np_random.randn() * speed_deviation)
+                                                    longitudinal=50  ,
+                                                    speed=16)
         vehicle.plan_route_to("wes")
         vehicle.randomize_behavior()
         self.road.vehicles.append(vehicle)
         
+        
+        
         vehicle = other_vehicles_type.make_on_lane(self.road,
                                                     ("nx","ne", 0),
                                                     longitudinal=50 + self.np_random.randn() * position_deviation,
-                                                    speed=18)
+                                                    speed=20)
         vehicle.plan_route_to("rcn")
         vehicle.randomize_behavior()
         self.road.vehicles.append(vehicle)
+        
+        
+        vehicle = other_vehicles_type.make_on_lane(self.road,
+                                                    ("ex","ee", 0),
+                                                    longitudinal=50 + self.np_random.randn() * position_deviation,
+                                                    speed=20)
+        vehicle.plan_route_to("rcn")
+        vehicle.randomize_behavior()
+        self.road.vehicles.append(vehicle)
+        
+        vehicle = other_vehicles_type.make_on_lane(self.road,
+                                                    ("se","ex", 0),
+                                                    longitudinal=50 + self.np_random.randn() * position_deviation,
+                                                    speed=16)
+        vehicle.plan_route_to("rcn")
+        vehicle.randomize_behavior()
+        self.road.vehicles.append(vehicle)
+        
+        vehicle = other_vehicles_type.make_on_lane(self.road,
+                                                    ("ee","nx", 0),
+                                                    longitudinal=50 + self.np_random.randn() * position_deviation,
+                                                    speed=18)
+        vehicle.plan_route_to("sx")
+        vehicle.randomize_behavior()
+        self.road.vehicles.append(vehicle)
+        
+        # vehicle = other_vehicles_type.make_on_lane(self.road,
+        #                                             ("we","sx", 0),
+        #                                             longitudinal=50 + self.np_random.randn() * position_deviation,
+        #                                             speed=16)
+        # vehicle.plan_route_to("ex")
+        # vehicle.randomize_behavior()
+        # self.road.vehicles.append(vehicle)
+        
+        # vehicle = other_vehicles_type.make_on_lane(self.road,
+        #                                             ("ne","wx", 0),
+        #                                             longitudinal=50 + self.np_random.randn() * position_deviation,
+        #                                             speed=15)
+        # vehicle.plan_route_to("nx")
+        # vehicle.randomize_behavior()
+        # self.road.vehicles.append(vehicle)
 
 
 register(
-    id='roundabout-v317',
+    id='roundabout-v357',
     entry_point='highway_env.envs:RoundaboutEnv',
 )
 
